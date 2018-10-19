@@ -61,11 +61,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\birdfly1.cs" />
+    <Compile Include="Assets\birdfly2.cs" />
     <Compile Include="Assets\CameraScript.cs" />
     <Compile Include="Assets\CameraScript的副本.cs" />
     <Compile Include="Assets\FightingUnityChan_FreeAsset\FightingUnityChan_FreeAsset\Scripts\CameraController.cs" />
     <Compile Include="Assets\FightingUnityChan_FreeAsset\FightingUnityChan_FreeAsset\Scripts\IdleChanger.cs" />
     <Compile Include="Assets\GirlScript.cs" />
+    <Compile Include="Assets\handmove.cs" />
+    <Compile Include="Assets\living birds\demo\livingBirdsDemoScript.cs" />
+    <Compile Include="Assets\living birds\scripts\lb_Bird.cs" />
+    <Compile Include="Assets\living birds\scripts\lb_BirdController.cs" />
+    <Compile Include="Assets\living birds\scripts\lb_CrowProximity.cs" />
     <Compile Include="Assets\ObjectMove.cs" />
     <Compile Include="Assets\Oculus\AudioManager\Scenes\Scripts\TestScript.cs" />
     <Compile Include="Assets\Oculus\AudioManager\Scripts\Audio\AmbienceEmitter.cs" />
@@ -117,6 +124,7 @@
     <Compile Include="Assets\Oculus\LipSync\Scripts\Helpers\OVRLipSyncDebugConsole.cs" />
     <Compile Include="Assets\Oculus\LipSync\Scripts\Helpers\OVRLipSyncTestAudio.cs" />
     <Compile Include="Assets\Oculus\LipSync\Scripts\Helpers\OVRMessenger.cs" />
+    <Compile Include="Assets\Oculus\LipSync\Scripts\Helpers\OVRNamedArrayAttribute.cs" />
     <Compile Include="Assets\Oculus\LipSync\Scripts\Helpers\OVRTouchpad.cs" />
     <Compile Include="Assets\Oculus\LipSync\Scripts\OVRLipSync.cs" />
     <Compile Include="Assets\Oculus\LipSync\Scripts\OVRLipSyncContext.cs" />
@@ -315,6 +323,7 @@
     <None Include="Assets\Oculus\Avatar\Resources\Materials\Version1.5\Avatar_Mobile_Loader.shader" />
     <None Include="Assets\Oculus\VR\Shaders\OVRColorRampAlpha.shader" />
     <None Include="Assets\Oculus\Avatar\Content\Materials\AvatarSurfaceShader.shader" />
+    <None Include="Assets\laxer tree pkg\README.txt" />
     <None Include="Assets\Oculus\VR\Resources\Cubemap Blit.shader" />
     <None Include="Assets\Oculus\Avatar\Content\Materials\AvatarSurfaceShaderSelfOccluding.shader" />
     <None Include="Assets\Oculus\VR\Resources\OVRMRUnlit.shader" />

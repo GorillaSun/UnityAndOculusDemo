@@ -1,11 +1,11 @@
 ﻿<Properties StartupConfiguration="{471E3E38-05E0-9532-F3AA-80910E3BFF6B}|">
   <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/GirlScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/CameraScript.cs">
     <Files>
-      <File FileName="Assets/CameraScript.cs" Line="388" Column="27" />
-      <File FileName="Assets/ObjectMove.cs" Line="1" Column="1" />
-      <File FileName="Assets/CameraScript的副本.cs" Line="1" Column="1" />
+      <File FileName="Assets/CameraScript.cs" Line="148" Column="32" />
+      <File FileName="Assets/birdfly2.cs" Line="9" Column="1" />
       <File FileName="Assets/GirlScript.cs" Line="1" Column="1" />
+      <File FileName="Assets/birdfly1.cs" Line="32" Column="14" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

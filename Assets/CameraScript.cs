@@ -22,8 +22,13 @@ public class CameraScript : MonoBehaviour {
 	public Material nightRoof;
 
 	public GirlScript girlScript;
+    public birdfly1 birdfly1;
+    public birdfly2 birdfly2;
 
-	int rackNum = 4;
+    public AudioClip[] bgSoundArray;
+    public AudioSource bgSound;
+
+    int rackNum = 4;
 	int serverNum = 7;
 	int cableNum = 1;
 
@@ -41,6 +46,7 @@ public class CameraScript : MonoBehaviour {
 	int ifClone3 = 0;
 	int totalCableLength = 5;
 
+    int simulationProcess = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -87,9 +93,16 @@ public class CameraScript : MonoBehaviour {
 		cablingButton.onClick.AddListener (delegate() {
 			onClick_cabling(cablingObj);
 		});
-	}
+        MeshRenderer[] marr = GameObject.Find("Trees").GetComponentsInChildren<MeshRenderer>(true);
+        foreach (MeshRenderer m in marr)
+        {
+            m.enabled = false;
+        }
+        birdfly1.hide();
+        birdfly2.hide();
+    }
 
-	void onClick_addRack1 (GameObject obj) {
+    void onClick_addRack1 (GameObject obj) {
 		clickedButton = 1;
 		showMode = 2;
 	}
@@ -128,9 +141,15 @@ public class CameraScript : MonoBehaviour {
 		createCableObject ();
 	}
 
-	// Update is called once per frame
-	void Update () {
-		if (showMode == 1) {
+
+    void Update () {
+        OVRInput.Update();
+
+        if (envTemplate == 2) {
+            bgSound.clip = bgSoundArray[Random.Range(0, bgSoundArray.Length)];
+            bgSound.Play();
+        }
+        if (showMode == 1) {
 			if (Input.GetMouseButton (0)) {
 				Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 				RaycastHit hit;
@@ -150,33 +169,111 @@ public class CameraScript : MonoBehaviour {
 						selectedObject = GameObject.Find (hit.collider.name);
 						showMode = 5;
 					} else if (hit.collider.name == "Gorilla") {
-						if (envTemplate == 1) {
-							selectedObject = GameObject.Find ("StaticObject/Wall1");
-							selectedObject.GetComponent<Renderer> ().material = nightWall;
-							selectedObject = GameObject.Find ("StaticObject/Wall2");
-							selectedObject.GetComponent<Renderer> ().material = nightWall;
-							selectedObject = GameObject.Find ("StaticObject/Wall3");
-							selectedObject.GetComponent<Renderer> ().material = nightWall;
-							selectedObject = GameObject.Find ("StaticObject/Roof");
-							selectedObject.GetComponent<Renderer> ().material = nightRoof;
-							envTemplate = 2;
-						} else {
-							selectedObject = GameObject.Find ("StaticObject/Wall1");
-							selectedObject.GetComponent<Renderer> ().material = normalWall;
-							selectedObject = GameObject.Find ("StaticObject/Wall2");
-							selectedObject.GetComponent<Renderer> ().material = normalWall;
-							selectedObject = GameObject.Find ("StaticObject/Wall3");
-							selectedObject.GetComponent<Renderer> ().material = normalWall;
-							selectedObject = GameObject.Find ("StaticObject/Roof");
-							selectedObject.GetComponent<Renderer> ().material = normalRoof;
-							envTemplate = 1;
-						}
+                        changeEnv();
 					}
 				}
 			}
 		}
 		if (showMode == 1 || showMode == 2 || showMode == 3) {
-			if (Input.GetKey ("up")) {
+
+            //Vector2 touchAxis = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick) * Time.deltaTime;
+            //transform.position += new Vector3(touchAxis.x, 0, touchAxis.y);
+
+            //if (OVRInput.Get(OVRInput.Button.Any) || Input.GetKeyDown(KeyCode.D)) {
+
+            if (OVRInput.Get(OVRInput.Button.Three)) {
+                changeEnv();
+            }
+            if (OVRInput.Get(OVRInput.Button.One) || Input.GetKeyDown(KeyCode.D)) {
+                    
+                if (simulationProcess == 0) {
+                    // create Rack
+                    createObject(1, 1);
+                    createObject(2, 2);
+                    createObject(2, 3);
+                    simulationProcess = 1;
+                } else if (simulationProcess == 1) { 
+                    // create Server
+                    createObject(3, 1);
+                    selectedObject.transform.position = new Vector3(0, 13, -1);
+                    selectedObject.name = "Server2";
+                    createObject(3, 1);
+                    selectedObject.transform.position = new Vector3(30, 13, -1);
+                    selectedObject.name = "Server5";
+                    createObject(4, 1);
+                    selectedObject.transform.position = new Vector3(0, 10, -1);
+                    selectedObject.name = "Server3";
+                    createObject(4, 1);
+                    selectedObject.transform.position = new Vector3(30, 10, -1);
+                    selectedObject.name = "Server6";
+                    simulationProcess = 2;
+                } else if (simulationProcess == 2) {   
+                    // clone
+                    instantiateCloneRack(0, 10, rackPerfab2);
+                    instantiateCloneServer(2, 13, 14, serverPerfab1);
+                    instantiateCloneServer(2, 10, 14, serverPerfab2);
+                    ifClone2 = 1;
+                    instantiateCloneRack(30, 10, rackPerfab2);
+                    instantiateCloneServer(32, 13, 14, serverPerfab1);
+                    instantiateCloneServer(32, 10, 14, serverPerfab2);
+                    ifClone3 = 1;
+                    simulationProcess = 3;
+                } else if (simulationProcess == 3) {
+                    // cable
+                    createCableObject();
+                    simulationProcess = 4;
+                } else if (simulationProcess == 4) {
+                    // observe
+                    selectedObject = GameObject.Find("Server2");
+                    selectedObjectOriginalRotate = selectedObject.transform.localEulerAngles;
+                    selectedObjectOriginalPos = selectedObject.transform.position;
+                    Vector3 selectObjectPos = new Vector3(transform.position.x,
+                        transform.position.y,
+                        transform.position.z + 25);
+                    selectedObject.transform.position = selectObjectPos;
+                    simulationProcess = 5;
+                }
+            }
+
+            Vector2 primaryStick = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
+            Vector2 secondaryStick = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+
+            if (simulationProcess != 5)
+            {
+
+                if (primaryStick.x != 0.0f)
+                {
+                    transform.Translate(Vector3.forward * primaryStick.x / 10);
+                }
+                if (primaryStick.y != 0.0)
+                {
+                    transform.Translate(Vector3.left * primaryStick.y / 10);
+                }
+                if (secondaryStick.x < 0.0)
+                {
+                    transform.Rotate(0, -0.1f, 0);
+                }
+                if (secondaryStick.x > 0.0)
+                {
+                    transform.Rotate(0, 0.1f, 0);
+                }
+            }
+            else
+            {
+                float h = 5 * Input.GetAxis("Mouse X");
+                float v = 5 * Input.GetAxis("Mouse Y");
+                selectedObject.transform.Rotate(0, primaryStick.x, primaryStick.y);
+                if (OVRInput.Get(OVRInput.Button.Two) || Input.GetKeyDown(KeyCode.F))
+                //if (OVRInput.Get(OVRInput.Button.Any) || Input.GetKeyDown(KeyCode.F))
+                    {
+                        selectedObject.transform.localEulerAngles = selectedObjectOriginalRotate;
+                    selectedObject.transform.position = selectedObjectOriginalPos;
+                    simulationProcess = 4;
+                }
+            }
+
+
+            if (Input.GetKey ("up")) {
 				transform.Translate (Vector3.forward);
 			}
 			if (Input.GetKey ("down")) {
@@ -189,6 +286,7 @@ public class CameraScript : MonoBehaviour {
 				transform.Rotate (0, 5, 0);
 			}
 		}
+
 		if (showMode == 2) {
 			if (Input.GetMouseButton (0)) {
 				Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
@@ -267,7 +365,7 @@ public class CameraScript : MonoBehaviour {
 			if (Input.GetKeyDown ("right")) {
 				girlScript.jab ();
 			}
-			if (Input.GetKeyDown (KeyCode.Escape)) {
+            if (Input.GetKeyDown (KeyCode.Escape)) {
 				showMode = 1;
 			}
 			if (Input.GetKeyUp ("up")) {
@@ -287,11 +385,12 @@ public class CameraScript : MonoBehaviour {
 				girlScript.idle ();
 			}
 		} else {
-			if (Input.GetKeyDown (KeyCode.Escape)) {
+            if (Input.GetKeyDown (KeyCode.Escape)
+                || OVRInput.Get(OVRInput.Button.Any)) {
 				GameObject.Find ("Start").gameObject.SetActive(false);
 				showMode = 1;
 			}
-		}
+        }
 	}
 
 	void createObject(int objectType, int position) {
@@ -481,7 +580,50 @@ public class CameraScript : MonoBehaviour {
 		}
 	}
 
-	void mouseFlow() {
+    void changeEnv() {
+        if (envTemplate == 1)
+        {
+            MeshRenderer[] marr = GameObject.Find("Trees").GetComponentsInChildren<MeshRenderer>(true);
+            foreach (MeshRenderer m in marr)
+            {
+                m.enabled = true;
+            }
+            birdfly1.show();
+            birdfly2.show();
+
+            selectedObject = GameObject.Find("StaticObject/Wall1");
+            selectedObject.GetComponent<Renderer>().material = nightWall;
+            selectedObject = GameObject.Find("StaticObject/Wall2");
+            selectedObject.GetComponent<Renderer>().material = nightWall;
+            selectedObject = GameObject.Find("StaticObject/Wall3");
+            selectedObject.GetComponent<Renderer>().material = nightWall;
+            selectedObject = GameObject.Find("StaticObject/Roof");
+            selectedObject.GetComponent<Renderer>().material = nightRoof;
+            envTemplate = 2;
+        }
+        else
+        {
+            MeshRenderer[] marr = GameObject.Find("Trees").GetComponentsInChildren<MeshRenderer>(true);
+            foreach (MeshRenderer m in marr)
+            {
+                m.enabled = false;
+            }
+            birdfly1.hide();
+            birdfly2.hide();
+
+            selectedObject = GameObject.Find("StaticObject/Wall1");
+            selectedObject.GetComponent<Renderer>().material = normalWall;
+            selectedObject = GameObject.Find("StaticObject/Wall2");
+            selectedObject.GetComponent<Renderer>().material = normalWall;
+            selectedObject = GameObject.Find("StaticObject/Wall3");
+            selectedObject.GetComponent<Renderer>().material = normalWall;
+            selectedObject = GameObject.Find("StaticObject/Roof");
+            selectedObject.GetComponent<Renderer>().material = normalRoof;
+            envTemplate = 1;
+        }
+    }
+
+    void mouseFlow() {
 		Vector3 screenPosition = Camera.main.WorldToScreenPoint(selectedObject.transform.position);
 		//获取鼠标在场景中坐标
 		Vector3 mousePositionOnScreen = Input.mousePosition;
